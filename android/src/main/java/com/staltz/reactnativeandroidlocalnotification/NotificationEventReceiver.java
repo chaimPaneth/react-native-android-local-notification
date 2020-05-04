@@ -1,17 +1,20 @@
 package com.staltz.reactnativeandroidlocalnotification;
 
-import android.content.ComponentName;
-import android.os.Build;
-import android.os.Bundle;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.content.Intent;
-import android.content.Context;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.facebook.react.bridge.ActivityEventListener;
+import com.facebook.react.bridge.ReactApplicationContext;
 
 import java.util.List;
-
-import android.util.Log;
 
 /**
  * Handles user's interaction on notifications.
@@ -44,18 +47,18 @@ public class NotificationEventReceiver extends BroadcastReceiver {
             context.startActivity(launchIntent);
             Log.i("ReactSystemNotification", "NotificationEventReceiver: Launching: " + packageName);
         } else {
-            sendBroadcast(context, extras); // If the application is already running in foreground, send a brodcast too
+            sendBroadcast(context, extras); // If the application is already running in foreground, send a broadcast too
         }
     }
 
     private void sendBroadcast(Context context, Bundle extras) {
-        Intent brodcastIntent = new Intent("NotificationEvent");
+        Intent broadcastIntent = new Intent("NotificationEvent");
 
-        brodcastIntent.putExtra("id", extras.getInt(NOTIFICATION_ID));
-        brodcastIntent.putExtra("action", extras.getString(ACTION));
-        brodcastIntent.putExtra("payload", extras.getString(PAYLOAD));
+        broadcastIntent.putExtra("id", extras.getInt(NOTIFICATION_ID));
+        broadcastIntent.putExtra("action", extras.getString(ACTION));
+        broadcastIntent.putExtra("payload", extras.getString(PAYLOAD));
 
-        context.sendBroadcast(brodcastIntent);
+        context.sendBroadcast(broadcastIntent);
         Log.v("ReactSystemNotification",
                 "NotificationEventReceiver: Broadcast Sent: NotificationEvent: " + extras.getString(ACTION)
                         + ", Notification ID: " + extras.getInt(NOTIFICATION_ID) + ", payload: "

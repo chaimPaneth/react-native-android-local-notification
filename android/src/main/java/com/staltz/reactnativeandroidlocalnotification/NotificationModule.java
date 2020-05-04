@@ -1,33 +1,34 @@
 package com.staltz.reactnativeandroidlocalnotification;
 
-import android.os.Bundle;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
 
-import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.ActivityEventListener;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.ArrayList;
-import android.util.Log;
 
 /**
  * The main React native module.
  *
  * Provides JS accessible API, bridge Java and JavaScript.
  */
-public class NotificationModule extends ReactContextBaseJavaModule {
+public class NotificationModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
     public Context mContext = null;
     public RCTNotificationManager mNotificationManager = null;
@@ -45,6 +46,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         this.mContext = reactContext;
         this.mNotificationManager = new RCTNotificationManager(reactContext);
+
+        reactContext.addActivityEventListener(this);
 
         listenNotificationEvent();
     }
@@ -257,6 +260,26 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 sendEvent("sysModuleNotificationClick", params);
             }
         }, intentFilter);
+    }
+
+    @Override
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+
+            Intent broadcastIntent = new Intent("NotificationEvent");
+
+            broadcastIntent.putExtra("id", extras.getInt("initialSysNotificationId"));
+            broadcastIntent.putExtra("action", extras.getString("initialSysNotificationAction"));
+            broadcastIntent.putExtra("payload", extras.getString("initialSysNotificationPayload"));
+
+            mContext.sendBroadcast(broadcastIntent);
+        }
     }
 
 }
